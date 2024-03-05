@@ -27,6 +27,9 @@ std::vector<double> RosenBrockG(const std::vector<double>& x,const double& a = 1
    return res;
 }
 
+double RobbinsMonroRule(const int k, const double a, const double b) {
+    return a / (b + k);
+}
 std::vector<double> 
      GradientDescent(const double & init_x, const double & init_y, 
                      const double & learning_rate,
@@ -34,17 +37,19 @@ std::vector<double>
                      const int    & max_iter){
     double x = init_x;
     double y = init_y;   
+    double step_size = learning_rate;
     int iter = 0;             
     while(iter < max_iter){
         
-        if(RosenBrockFunction(std::vector<double>{x,y}) < tol){
+        std::vector<double> grad = RosenBrockG({x,y});
+        double norm = std::hypot(grad[0],grad[1]);
+        if(norm < tol){
 
             break;  
         }
-        std::vector<double> grad = RosenBrockG({x,y});
-
-        x -= learning_rate * grad[0];
-        y -= learning_rate * grad[1];
+        step_size = RobbinsMonroRule(iter,1.0,1.0);
+        x -= step_size * grad[0];
+        y -= step_size * grad[1];
         iter ++;
     }
     return {x,y};
@@ -52,8 +57,8 @@ std::vector<double>
 
 
 int main(){
-   double x = 1.0, y = 1.0;
-   double learning_rate = 0.5;
+   double x = 10.0, y = 9.0;
+   double learning_rate = 0.1;
    double tol   = 1e-9;
    int max_iter = 10000;
 
@@ -63,8 +68,6 @@ int main(){
                                            tol, max_iter);
    std::cout << " RosenBrock value is " << RosenBrockFunction({res[0],res[1]}) 
              << " x is " << res[0] << " y is " << res[1] << std::endl;
-   std::cout << " RosenBrock value is " << RosenBrockFunction({1,1}) 
-             << " x is " << res[0] << " y is " << res[1] << std::endl;
-//    std::cout << " x Gradient value of RosenBrock is " << << std::endl;
+
    return 0;
 }
